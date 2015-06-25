@@ -41,9 +41,11 @@ The [core library] is available on nuget
 
 ## Aop
 
-Because caching is a cross-cutting concern it can be executed with some flavor of Aspect oriented programming (Aop) to seperate concerns. 
+Because caching is a cross-cutting concern it can be executed with some flavor of Aspect oriented programming (Aop) to promote single responsiblity. 
 
-xCache.Aop.Unity scaffolds the IoC interception pattern and provides a caching attribute to enable caching functionality on a method by method basis
+xCache.Aop.Unity scaffolds the IoC interception pattern and provides a caching attribute to enable caching functionality on a method by method basis.
+
+It comes bundled with a Json.Net cache key generator that leverage generic serialization to ensure unique keys are always generated.
 
 ### Installation
 
@@ -91,7 +93,7 @@ container.RegisterType<IAop, UnityAop>(
     new Interceptor<InterfaceInterceptor>());
 
 //Resolve
-var aop = _container.Resolve<IAop>();
+var aop = container.Resolve<IAop>();
 
 //Should return the same DateTime string for 5 second intervals
 var cachedDateTimeString = aop.GetCurrentDateAsStringFiveSecondCache();
