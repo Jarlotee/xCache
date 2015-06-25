@@ -78,25 +78,32 @@ public class UnityAop : IAop
 
 ```csharp
 
-var container = new UnityContainer();
-
-//Register interception
-container.AddNewExtension<Interception>();
-
-//Register xCache
-container.RegisterType<ICache, xCache.MemoryCache>();
-container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>();
-
-//Register test interface with interception
-container.RegisterType<IAop, UnityAop>(
-    new InterceptionBehavior<PolicyInjectionBehavior>(),
-    new Interceptor<InterfaceInterceptor>());
-
-//Resolve
-var aop = container.Resolve<IAop>();
-
-//Should return the same DateTime string for 5 second intervals
-var cachedDateTimeString = aop.GetCurrentDateAsStringFiveSecondCache();
+public class CacheTests 
+{
+	[Fact]
+	public void FiveSecondTest()
+	{
+		var container = new UnityContainer();
+		
+		//Register interception
+		container.AddNewExtension<Interception>();
+		
+		//Register xCache
+		container.RegisterType<ICache, xCache.MemoryCache>();
+		container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>();
+		
+		//Register test interface with interception
+		container.RegisterType<IAop, UnityAop>(
+		    new InterceptionBehavior<PolicyInjectionBehavior>(),
+		    new Interceptor<InterfaceInterceptor>());
+		
+		//Resolve
+		var aop = container.Resolve<IAop>();
+		
+		//Should return the same DateTime string for 5 second intervals
+		var cachedDateTimeString = aop.GetCurrentDateAsStringFiveSecondCache();
+	}
+}
 
 ```
 
