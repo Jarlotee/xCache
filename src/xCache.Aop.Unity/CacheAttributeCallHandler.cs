@@ -1,5 +1,8 @@
 ﻿using Microsoft.Practices.Unity.InterceptionExtension;
 using System;
+using System.Collections.Concurrent;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace xCache.Aop.Unity
 {
@@ -10,6 +13,8 @@ namespace xCache.Aop.Unity
 
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
+        private readonly ConcurrentDictionary<Type, Func<Task, ICache, string, Task>> wrapperCreators =
+                        new ConcurrentDictionary<Type, Func<Task, ICache, string, Task>>();
 
         public CacheAttributeCallHandler(ICache cache, ICacheKeyGenerator keyGenerator)
         {
@@ -19,11 +24,21 @@ namespace xCache.Aop.Unity
 
         public IMethodReturn Invoke(IMethodInvocation input, GetNextHandlerDelegate getNext)
         {
+            var methodInfo = (MethodInfo)input.MethodBase;
+            var methodIsTask = typeof(Task).IsAssignableFrom(methodInfo.ReturnType)
+                && methodInfo.ReturnType.IsGenericType
+                && methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>);
             var cacheKey = _keyGenerator.GenerateKey(input);
-            var cachedResult = _cache.Get<object>(cacheKey);
+            var underlyingReturnType = methodIsTask ? methodInfo.ReturnType.GenericTypeArguments[0]
+                : methodInfo.ReturnType;
+
+            var cachedResult = typeof(ICache).GetMethod("Get")
+                    .MakeGenericMethod(underlyingReturnType)
+                    .Invoke(_cache, new object[] { cacheKey });
 
             // Nothing is cached for this method
-            if (cachedResult == null)
+            if (cachedResult == null || 
+                (underlyingReturnType.IsValueType && cachedResult.Equals(Activator.CreateInstance(underlyingReturnType))))
             {
                 // Get a new result
                 var newResult = getNext()(input, getNext);
@@ -31,16 +46,41 @@ namespace xCache.Aop.Unity
                 //Do not cache null return values or exceptions
                 if (newResult.ReturnValue != null && newResult.Exception == null)
                 {
-                    _cache.Add<object>(cacheKey, newResult.ReturnValue, Timeout);
+                    if (methodIsTask)
+                    {
+                        newResult.ReturnValue = InterceptAsync((dynamic)newResult.ReturnValue, cacheKey);
+                    }
+                    else
+                    {
+                        _cache.Add(cacheKey, newResult.ReturnValue, Timeout);
+                    }
                 }
 
                 cachedResult = newResult.ReturnValue;
+            }
+            else
+            {
+                if (methodIsTask)
+                {
+                    cachedResult = typeof(Task).GetMethod("FromResult")
+                        .MakeGenericMethod(methodInfo.ReturnType.GetGenericArguments())
+                        .Invoke(null, new object[] { cachedResult });
+                }
             }
 
             var arguments = new object[input.Inputs.Count];
             input.Inputs.CopyTo(arguments, 0);
 
             return new VirtualMethodReturn(input, cachedResult, arguments);
+        }
+
+        private async Task<T> InterceptAsync<T>(Task<T> task, string cacheKey)
+        {
+            var value = await task.ConfigureAwait(false);
+
+            _cache.Add(cacheKey, value, Timeout);
+
+            return value;
         }
     }
 }

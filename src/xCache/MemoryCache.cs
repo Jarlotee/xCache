@@ -16,7 +16,16 @@ namespace xCache
 
         public T Get<T>(string key)
         {
-            return (T)_cache.Get(key);
+            var value = _cache.Get(key);
+
+            if (value != null)
+            {
+                return (T)value;
+            }
+            else
+            {
+                return default(T);
+            }
         }
     }
 }
