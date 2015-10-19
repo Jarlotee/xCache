@@ -109,7 +109,8 @@ public class CacheTests
 
 
 ### Version
-0.1.0
+* xCache 0.1.0
+* xCache.Aop.Unity 0.1.0
 
 ### License
 MIT
