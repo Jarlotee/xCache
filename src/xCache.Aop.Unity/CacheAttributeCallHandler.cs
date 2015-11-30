@@ -78,7 +78,10 @@ namespace xCache.Aop.Unity
         {
             var value = await task.ConfigureAwait(false);
 
-            _cache.Add(cacheKey, value, Timeout);
+            if(value != null)
+            { 
+                _cache.Add(cacheKey, value, Timeout);
+            }
 
             return value;
         }

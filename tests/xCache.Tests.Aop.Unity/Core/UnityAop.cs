@@ -32,5 +32,17 @@ namespace xCache.Tests.Aop.Unity.Core
         {
             return await Task.FromResult(DateTime.Now);
         }
+
+        [Cache(Seconds = 5)]
+        public string GetNullAsStringFiveSecondCache()
+        {
+            return null;
+        }
+
+        [Cache(Seconds = 5)]
+        public Task<string> GetNullAsStringFiveSecondCacheAsync()
+        {
+            return Task.FromResult((string)null);
+        }
     }
 }

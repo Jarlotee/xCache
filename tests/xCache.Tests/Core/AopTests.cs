@@ -104,5 +104,21 @@ namespace xCache.Tests.Core
 
             Assert.Equal(cached2, cached3);
         }
+
+        [Fact]
+        public void TestNullResult()
+        {
+            var result = _aop.GetNullAsStringFiveSecondCache();
+
+            Assert.Equal(result, null);
+        }
+
+        [Fact]
+        public async Task TestNullResultAsync()
+        {
+            var result = await _aop.GetNullAsStringFiveSecondCacheAsync();
+
+            Assert.Equal(result, null);
+        }
     }
 }

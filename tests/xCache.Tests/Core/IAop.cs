@@ -9,5 +9,7 @@ namespace xCache.Tests.Core
         Task<string> GetCurrentDataAsStringFiveSecondCacheAsync();
         DateTime GetCurrentDateTimeFiveSecondCache();
         Task<DateTime> GetCurrentDateTimeFiveSecondCacheAsync();
+        string GetNullAsStringFiveSecondCache();
+        Task<string> GetNullAsStringFiveSecondCacheAsync();
     }
 }
