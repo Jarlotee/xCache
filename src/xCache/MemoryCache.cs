@@ -11,7 +11,7 @@ namespace xCache
 
         public void Add<T>(string key, T item, TimeSpan expiration)
         {
-            _cache.Add(key, item, new DateTimeOffset(DateTime.Now.Add(expiration)));
+            _cache.Set(key, item, new DateTimeOffset(DateTime.Now.Add(expiration)));
         }
 
         public T Get<T>(string key)

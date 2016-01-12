@@ -56,8 +56,8 @@
     <Compile Include="CacheKeyGenerator\ComplexChildObject.cs" />
     <Compile Include="CacheKeyGenerator\ComplexObject.cs" />
     <Compile Include="CacheKeyGenerator\ReferenceMethods.cs" />
-    <Compile Include="Core\AopTests.cs" />
-    <Compile Include="Core\IAop.cs" />
+    <Compile Include="Core\CacheEnabledTests.cs" />
+    <Compile Include="Core\ICacheEnableObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,44 +1,44 @@
-﻿using Microsoft.Practices.Unity.InterceptionExtension;
+﻿using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.InterceptionExtension;
 using System;
-using System.Collections.Concurrent;
-using System.Reflection;
 using System.Threading.Tasks;
+using xCache.Durable;
+using xCache.Extensions;
 
 namespace xCache.Aop.Unity
 {
     public class CacheAttributeCallHandler : ICallHandler
     {
         public int Order { get; set; }
-        public TimeSpan Timeout { get; set; }
+        public TimeSpan Expiration { get; set; }
+        public TimeSpan? AbsoluteExpiration { get; set; }
 
+        private IUnityContainer _container;
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
-        private readonly ConcurrentDictionary<Type, Func<Task, ICache, string, Task>> wrapperCreators =
-                        new ConcurrentDictionary<Type, Func<Task, ICache, string, Task>>();
 
-        public CacheAttributeCallHandler(ICache cache, ICacheKeyGenerator keyGenerator)
+        public CacheAttributeCallHandler(IUnityContainer container)
         {
-            _cache = cache;
-            _keyGenerator = keyGenerator;
+            _container = container;
+            _cache = container.Resolve<ICache>();
+            _keyGenerator = container.Resolve<ICacheKeyGenerator>();
         }
 
         public IMethodReturn Invoke(IMethodInvocation input, GetNextHandlerDelegate getNext)
         {
-            var methodInfo = (MethodInfo)input.MethodBase;
-            var methodIsTask = typeof(Task).IsAssignableFrom(methodInfo.ReturnType)
-                && methodInfo.ReturnType.IsGenericType
-                && methodInfo.ReturnType.GetGenericTypeDefinition() == typeof(Task<>);
             var cacheKey = _keyGenerator.GenerateKey(input);
-            var underlyingReturnType = methodIsTask ? methodInfo.ReturnType.GenericTypeArguments[0]
-                : methodInfo.ReturnType;
+
+            var methodIsTask = input.MethodBase.IsGenericTask();
+            var returnType = methodIsTask ? input.MethodBase.GetGenericReturnTypeArgument(0)
+                : input.MethodBase.GetReturnType();
 
             var cachedResult = typeof(ICache).GetMethod("Get")
-                    .MakeGenericMethod(underlyingReturnType)
+                    .MakeGenericMethod(returnType)
                     .Invoke(_cache, new object[] { cacheKey });
 
             // Nothing is cached for this method
             if (cachedResult == null || 
-                (underlyingReturnType.IsValueType && cachedResult.Equals(Activator.CreateInstance(underlyingReturnType))))
+                (returnType.IsValueType && cachedResult.Equals(Activator.CreateInstance(returnType))))
             {
                 // Get a new result
                 var newResult = getNext()(input, getNext);
@@ -48,14 +48,36 @@ namespace xCache.Aop.Unity
                 {
                     if (methodIsTask)
                     {
-                        newResult.ReturnValue = InterceptAsync((dynamic)newResult.ReturnValue, cacheKey);
+                        newResult.ReturnValue = CacheExtensions
+                            .AddToCache(_cache, (dynamic)newResult.ReturnValue,
+                                cacheKey, AbsoluteExpiration, Expiration);
                     }
                     else
                     {
-                        _cache.Add(cacheKey, newResult.ReturnValue, Timeout);
+                        _cache.Add(cacheKey, newResult.ReturnValue, AbsoluteExpiration ?? Expiration);
+                    }
+
+                    //queue refresh if configured by the user
+                    if (AbsoluteExpiration != null)
+                    {
+                        var parameters = new object[input.Inputs.Count];
+                        input.Inputs.CopyTo(parameters, 0);
+
+                        var queue = _container.Resolve<IDurableCacheQueue>();
+
+                        queue.ScheduleRefresh(new DurableCacheRefreshEvent
+                        {
+                            AbsoluteExpiration = AbsoluteExpiration.Value,
+                            Key = cacheKey,
+                            MethodBase = input.MethodBase,
+                            Parameters = parameters,
+                            Type = input.Target.GetType(),
+                            RefreshTime = Expiration,
+                            UtcLifetime = DateTime.UtcNow.Add(AbsoluteExpiration.Value),
+                        });
                     }
                 }
-
+                
                 cachedResult = newResult.ReturnValue;
             }
             else
@@ -63,7 +85,7 @@ namespace xCache.Aop.Unity
                 if (methodIsTask)
                 {
                     cachedResult = typeof(Task).GetMethod("FromResult")
-                        .MakeGenericMethod(methodInfo.ReturnType.GetGenericArguments())
+                        .MakeGenericMethod(input.MethodBase.GetGenericReturnTypeArguments())
                         .Invoke(null, new object[] { cachedResult });
                 }
             }
@@ -72,18 +94,6 @@ namespace xCache.Aop.Unity
             input.Inputs.CopyTo(arguments, 0);
 
             return new VirtualMethodReturn(input, cachedResult, arguments);
-        }
-
-        private async Task<T> InterceptAsync<T>(Task<T> task, string cacheKey)
-        {
-            var value = await task.ConfigureAwait(false);
-
-            if(value != null)
-            { 
-                _cache.Add(cacheKey, value, Timeout);
-            }
-
-            return value;
         }
     }
 }

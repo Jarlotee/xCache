@@ -2,11 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using xCache.Aop.Unity;
+using xCache.Tests.CacheKeyGenerator;
 using xCache.Tests.Core;
 
 namespace xCache.Tests.Aop.Unity.Core
 {
-    public class UnityAop : IAop
+    public class UnityCacheEnabledObject : ICacheEnableObject
     {
         [Cache(Seconds = 5)]
         public async Task<string> GetCurrentDataAsStringFiveSecondCacheAsync()
@@ -19,6 +20,18 @@ namespace xCache.Tests.Aop.Unity.Core
         public string GetCurrentDateAsStringFiveSecondCache()
         {
             return DateTime.Now.ToString();
+        }
+
+        [Cache(Seconds = 10, AbsoluteSeconds = 30)]
+        public string GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds()
+        {
+            return DateTime.Now.ToString();
+        }
+
+        [Cache(Seconds = 10, AbsoluteSeconds = 30)]
+        public async Task<string> GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync()
+        {
+            return await Task.FromResult(DateTime.Now.ToString());
         }
 
         [Cache(Seconds = 5)]
@@ -43,6 +56,22 @@ namespace xCache.Tests.Aop.Unity.Core
         public Task<string> GetNullAsStringFiveSecondCacheAsync()
         {
             return Task.FromResult((string)null);
+        }
+
+        [Cache(Seconds = 15, AbsoluteSeconds = 90)]
+        public string GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(int p0)
+        {
+            return DateTime.Now.ToString() + ":" + p0.ToString();
+        }
+
+        [Cache(Seconds = 10, AbsoluteSeconds = 30)]
+        public ComplexObject GetComplexObjectWithComplexParameterFifeenSecondCacheAbsoluteNinetySeconds(ComplexObject obj)
+        {
+            var newObject = new ComplexObject();
+
+            newObject.Ints = obj.Ints;
+
+            return newObject;
         }
     }
 }
