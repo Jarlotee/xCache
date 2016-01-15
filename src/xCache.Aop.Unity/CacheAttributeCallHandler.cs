@@ -9,7 +9,6 @@ namespace xCache.Aop.Unity
     {
         public int Order { get; set; }
         public TimeSpan Timeout { get; set; }
-        public bool AbortMethodCallOnCacheMiss { get; set; }
 
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
@@ -33,11 +32,6 @@ namespace xCache.Aop.Unity
             var cachedResult = _cache.GetType().GetMethod("Get")
                     .MakeGenericMethod(underlyingReturnType)
                     .Invoke(_cache, new object[] { cacheKey });
-
-            if (cachedResult == null && AbortMethodCallOnCacheMiss)
-            {
-                return input.CreateMethodReturn(null);
-            }
 
             // Nothing is cached for this method
             if (cachedResult == null || 
@@ -67,7 +61,7 @@ namespace xCache.Aop.Unity
                 {
                     cachedResult = typeof(Task).GetMethod("FromResult")
                         .MakeGenericMethod(methodInfo.ReturnType.GetGenericArguments())
-                        .Invoke(null, new object[] { cachedResult });
+                        .Invoke(null, new[] { cachedResult });
                 }
             }
 
