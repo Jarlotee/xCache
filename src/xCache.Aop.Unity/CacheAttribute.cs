@@ -10,15 +10,16 @@ namespace xCache.Aop.Unity
         public int Hours { get; set; }
         public int Minutes { get; set; }
         public int Seconds { get; set; }
+        public string Name { get; set; }
 
         public override ICallHandler CreateHandler(IUnityContainer container)
         {
-            var cache = container.Resolve<ICache>();
+            var cache = container.Resolve<ICache>(Name);
             var keyGenerator = container.Resolve<ICacheKeyGenerator>();
 
             var handler = new CacheAttributeCallHandler(cache, keyGenerator)
             {
-                Order = 1,
+                Order = Order,
                 Timeout = new TimeSpan(Hours, Minutes, Seconds)
             };
 

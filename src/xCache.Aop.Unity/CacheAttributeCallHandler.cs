@@ -1,6 +1,5 @@
 ﻿using Microsoft.Practices.Unity.InterceptionExtension;
 using System;
-using System.Collections.Concurrent;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -13,8 +12,6 @@ namespace xCache.Aop.Unity
 
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
-        private readonly ConcurrentDictionary<Type, Func<Task, ICache, string, Task>> wrapperCreators =
-                        new ConcurrentDictionary<Type, Func<Task, ICache, string, Task>>();
 
         public CacheAttributeCallHandler(ICache cache, ICacheKeyGenerator keyGenerator)
         {
@@ -32,7 +29,7 @@ namespace xCache.Aop.Unity
             var underlyingReturnType = methodIsTask ? methodInfo.ReturnType.GenericTypeArguments[0]
                 : methodInfo.ReturnType;
 
-            var cachedResult = typeof(ICache).GetMethod("Get")
+            var cachedResult = _cache.GetType().GetMethod("Get")
                     .MakeGenericMethod(underlyingReturnType)
                     .Invoke(_cache, new object[] { cacheKey });
 
@@ -64,7 +61,7 @@ namespace xCache.Aop.Unity
                 {
                     cachedResult = typeof(Task).GetMethod("FromResult")
                         .MakeGenericMethod(methodInfo.ReturnType.GetGenericArguments())
-                        .Invoke(null, new object[] { cachedResult });
+                        .Invoke(null, new[] { cachedResult });
                 }
             }
 
