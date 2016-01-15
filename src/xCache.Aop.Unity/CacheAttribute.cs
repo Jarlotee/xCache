@@ -11,6 +11,7 @@ namespace xCache.Aop.Unity
         public int Minutes { get; set; }
         public int Seconds { get; set; }
         public string Name { get; set; }
+        public bool AbortMethodCallOnCacheMiss { get; set; }
 
         public override ICallHandler CreateHandler(IUnityContainer container)
         {
@@ -19,8 +20,9 @@ namespace xCache.Aop.Unity
 
             var handler = new CacheAttributeCallHandler(cache, keyGenerator)
             {
-                Order = 1,
-                Timeout = new TimeSpan(Hours, Minutes, Seconds)
+                Order = Order,
+                Timeout = new TimeSpan(Hours, Minutes, Seconds),
+                AbortMethodCallOnCacheMiss = AbortMethodCallOnCacheMiss
             };
 
             //Set Default to 5

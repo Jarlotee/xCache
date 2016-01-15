@@ -17,7 +17,8 @@ namespace xCache.Tests.Aop.Unity.Core
             _container.AddNewExtension<Interception>();
 
             //Register xCache
-            _container.RegisterType<ICache, xCache.MemoryCache>();
+            _container.RegisterType<ICache, MemoryCache>();
+            _container.RegisterType<ICache, DictionaryCache>("Dictionary");
             _container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>();
 
             //Register test class with interception

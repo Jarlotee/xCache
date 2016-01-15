@@ -1,6 +1,5 @@
 ﻿using Microsoft.Practices.Unity.InterceptionExtension;
 using System;
-using System.Collections.Concurrent;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -10,11 +9,10 @@ namespace xCache.Aop.Unity
     {
         public int Order { get; set; }
         public TimeSpan Timeout { get; set; }
+        public bool AbortMethodCallOnCacheMiss { get; set; }
 
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
-        private readonly ConcurrentDictionary<Type, Func<Task, ICache, string, Task>> wrapperCreators =
-                        new ConcurrentDictionary<Type, Func<Task, ICache, string, Task>>();
 
         public CacheAttributeCallHandler(ICache cache, ICacheKeyGenerator keyGenerator)
         {
@@ -32,9 +30,14 @@ namespace xCache.Aop.Unity
             var underlyingReturnType = methodIsTask ? methodInfo.ReturnType.GenericTypeArguments[0]
                 : methodInfo.ReturnType;
 
-            var cachedResult = typeof(ICache).GetMethod("Get")
+            var cachedResult = _cache.GetType().GetMethod("Get")
                     .MakeGenericMethod(underlyingReturnType)
                     .Invoke(_cache, new object[] { cacheKey });
+
+            if (cachedResult == null && AbortMethodCallOnCacheMiss)
+            {
+                return input.CreateMethodReturn(null);
+            }
 
             // Nothing is cached for this method
             if (cachedResult == null || 
