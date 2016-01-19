@@ -7,16 +7,19 @@ namespace xCache
     {
         private readonly IDictionary _cache;
         private readonly ICache _successor;
+        private readonly bool _recordCacheEvent;
 
-        public DictionaryCache(IDictionary cache, ICache successor)
+        public DictionaryCache(IDictionary cache, ICache successor, bool recordCacheEvent)
         {
             _cache = cache;
             _successor = successor;
+            _recordCacheEvent = recordCacheEvent;
         }
 
         public void Add<T>(string key, T item, TimeSpan expiration)
         {
             _cache[key] = item;
+            PossiblyRecordEvent(key, item, CacheAction.Add);
             if (_successor != null)
             {
                 _successor.Add(key, item, expiration);
@@ -31,6 +34,7 @@ namespace xCache
 
                 if (value != null)
                 {
+                    PossiblyRecordEvent(key, value, CacheAction.Get);
                     return (T)value;
                 }
             }
@@ -41,6 +45,14 @@ namespace xCache
             }
 
             return default(T);
+        }
+
+        private void PossiblyRecordEvent(string key, object value, CacheAction cacheAction)
+        {
+            if (_recordCacheEvent)
+            {
+                CacheRecorder.Record("DictionaryCache", key, value, cacheAction);
+            }
         }
     }
 }

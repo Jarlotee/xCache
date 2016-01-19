@@ -1,4 +1,5 @@
-﻿using Microsoft.Practices.Unity;
+﻿using System.Collections;
+using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.InterceptionExtension;
 using xCache.Aop.Unity;
 using xCache.Tests.Core;
@@ -11,14 +12,16 @@ namespace xCache.Tests.Aop.Unity.Core
 
         public UnityAopTests()
         {    
+            DictionaryCache.Clear();
             _container = new UnityContainer();
 
             //Register interception
             _container.AddNewExtension<Interception>();
 
             //Register xCache
-            _container.RegisterType<ICache, MemoryCache>();
-            _container.RegisterType<ICache, DictionaryCache>("Dictionary");
+            _container.RegisterType<ICache, MemoryCache>(new InjectionConstructor(true));
+            _container.RegisterType<ICache, DictionaryCache>("Dictionary", new InjectionFactory(x =>
+                new DictionaryCache(DictionaryCache, _container.Resolve<ICache>(), true)));
             _container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>();
 
             //Register test class with interception

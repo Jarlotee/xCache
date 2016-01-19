@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CacheRecord.cs" />
+    <Compile Include="CacheRecorder.cs" />
     <Compile Include="DictionaryCache.cs" />
     <Compile Include="ICache.cs" />
     <Compile Include="MemoryCache.cs" />

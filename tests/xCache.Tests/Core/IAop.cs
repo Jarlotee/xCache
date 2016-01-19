@@ -11,5 +11,6 @@ namespace xCache.Tests.Core
         Task<DateTime> GetCurrentDateTimeFiveSecondCacheAsync();
         string GetNullAsStringFiveSecondCache();
         Task<string> GetNullAsStringFiveSecondCacheAsync();
+        string GetCurrentDateAsStringOneSecondCache();
     }
 }

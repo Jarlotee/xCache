@@ -21,6 +21,12 @@ namespace xCache.Tests.Aop.Unity.Core
             return DateTime.Now.ToString();
         }
 
+        [Cache(Seconds = 1, Name = "Dictionary")]
+        public string GetCurrentDateAsStringOneSecondCache()
+        {
+            return DateTime.Now.ToString();
+        }
+
         [Cache(Seconds = 5)]
         public DateTime GetCurrentDateTimeFiveSecondCache()
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -7,6 +8,8 @@ namespace xCache.Tests.Core
 {
     public abstract class AopTests
     {
+        public static IDictionary DictionaryCache = new Hashtable();
+
         protected IAop _aop = null;
 
         [Fact]
@@ -119,6 +122,25 @@ namespace xCache.Tests.Core
             var result = await _aop.GetNullAsStringFiveSecondCacheAsync();
 
             Assert.Equal(result, null);
+        }
+
+        [Fact]
+        public void TestSecondLevelCache()
+        {
+            CacheRecord record;
+
+            _aop.GetCurrentDateAsStringOneSecondCache();
+            CacheRecorder.Records.TryPop(out record);
+            Assert.Equal("MemoryCache", record.Source);
+
+            _aop.GetCurrentDateAsStringOneSecondCache();
+            CacheRecorder.Records.TryPop(out record);
+            Assert.Equal("DictionaryCache", record.Source);
+
+            DictionaryCache.Clear();
+            _aop.GetCurrentDateAsStringOneSecondCache();
+            CacheRecorder.Records.TryPop(out record);
+            Assert.Equal("MemoryCache", record.Source);
         }
     }
 }
