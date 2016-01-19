@@ -16,6 +16,11 @@ namespace xCache.Tests.Core
 
         }
 
+        protected virtual void PurgeDictionaryCache()
+        {
+
+        }
+
         [Fact]
         public void TestFiveSecondTimeout()
         {
@@ -350,6 +355,113 @@ namespace xCache.Tests.Core
 
             //Check Trace to make sure cache stops refreshing
             Thread.Sleep(new TimeSpan(0, 0, 40));
+        }
+
+        [Fact]
+        public void TestTwoTierCache()
+        {
+            //Should be served from tier 2
+            var now = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiers();
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 1
+            var cached = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiers();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 2
+            var cached2 = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiers();
+
+            Assert.NotEqual(now, cached2);
+        }
+
+        [Fact]
+        public async Task TestTwoTierCacheAsync()
+        {
+            //Should be served from tier 2
+            var now = await _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersAsync();
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 1
+            var cached = await _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersAsync();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 2
+            var cached2 = await _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersAsync();
+
+            Assert.NotEqual(now, cached2);
+        }
+
+        [Fact]
+        public void TestTwoTierCacheWithDefault()
+        {
+            //Should be served from tier 2
+            var now = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefault();
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 1 (default)
+            var cached = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefault();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 2
+            var cached2 = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefault();
+
+            Assert.NotEqual(now, cached2);
+        }
+
+        [Fact]
+        public async Task TestTwoTierCacheWithDefaultAsync()
+        {
+            //Should be served from tier 2
+            var now = await _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefaultAsync();
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 1 (default)
+            var cached = await _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefaultAsync();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 2
+            var cached2 = await _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefaultAsync();
+
+            Assert.NotEqual(now, cached2);
+        }
+
+        [Fact]
+        public void TestTwoTierCacheWithDictionary()
+        {
+            //Should be served from tier 2
+            var now = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary();
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            //Should be served from tier 1
+            var cached = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary();
+
+            Assert.Equal(now, cached);
+
+            PurgeDictionaryCache();
+
+            //Should be served from tier 2
+            var cached2 = _cached.GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary();
+
+            Assert.NotEqual(now, cached2);
+
+            Thread.Sleep(new TimeSpan(0, 0, 10));
         }
     }
 }

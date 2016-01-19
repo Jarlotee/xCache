@@ -1,6 +1,7 @@
 ﻿using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.InterceptionExtension;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using xCache.Durable;
 using xCache.Extensions;
@@ -16,16 +17,24 @@ namespace xCache.Aop.Unity
         private IUnityContainer _container;
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
+        private readonly string _cacheName;
 
-        public CacheAttributeCallHandler(IUnityContainer container)
+        public CacheAttributeCallHandler(IUnityContainer container, string cacheName)
         {
+            _cacheName = cacheName;
             _container = container;
-            _cache = container.Resolve<ICache>();
+            _cache = string.IsNullOrWhiteSpace(cacheName) ?
+                container.Resolve<ICache>() : container.Resolve<ICache>(cacheName);
             _keyGenerator = container.Resolve<ICacheKeyGenerator>();
         }
 
         public IMethodReturn Invoke(IMethodInvocation input, GetNextHandlerDelegate getNext)
         {
+            if (!string.IsNullOrWhiteSpace(_cacheName))
+            {
+                Trace.TraceInformation("Cache Name {0} was called", _cacheName);
+            }
+
             var cacheKey = _keyGenerator.GenerateKey(input);
 
             var methodIsTask = input.MethodBase.IsGenericTask();
