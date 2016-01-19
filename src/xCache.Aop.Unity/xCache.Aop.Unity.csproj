@@ -61,6 +61,7 @@
     <Compile Include="CacheAttribute.cs" />
     <Compile Include="CacheAttributeCallHandler.cs" />
     <Compile Include="ICacheKeyGenerator.cs" />
+    <Compile Include="JsonCacheKeyFormat.cs" />
     <Compile Include="JsonCacheKeyGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

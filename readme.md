@@ -2,7 +2,7 @@
 
 xCache is a decoupled caching abstraction for .NET. 
 
-xCache comes with support for System.Runtime.Caching.MemoryCache out of the box and is designed to be easy to extend with other caching implementations.
+xCache comes with support for System.Runtime.Caching.MemoryCache out of the box and is designed to be easy to extend with other caching implementations. Like the [xCache.Redis] implementation.
 
 ## Installation
 
@@ -17,7 +17,7 @@ The [core library] is available on nuget
 ```csharp
 
 	//Register
-	Ioc.RegisterType<ICache, xCache.MemoryCache>();
+	Ioc.RegisterType<ICache, MemoryCache>();
 
 ```
 
@@ -58,14 +58,14 @@ The [Aop Unity] package is available on nuget
 ```csharp
 
 //Create an interface for interception
-public interface IAop
+public interface ICachedObject
 {
     string GetCurrentDateAsStringFiveSecondCache();
 }
 
 //Impliment that interface
 
-public class UnityAop : IAop
+public class UnityCachedObject : ICachedObject
 {
     [Cache(Seconds = 5)]
     public string GetCurrentDateAsStringFiveSecondCache()
@@ -93,24 +93,47 @@ public class CacheTests
 		container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>();
 		
 		//Register test interface with interception
-		container.RegisterType<IAop, UnityAop>(
+		container.RegisterType<ICachedObject, UnityCachedObject>(
 		    new InterceptionBehavior<PolicyInjectionBehavior>(),
 		    new Interceptor<InterfaceInterceptor>());
 		
 		//Resolve
-		var aop = container.Resolve<IAop>();
+		var obj = container.Resolve<ICachedObject>();
 		
 		//Should return the same DateTime string for 5 second intervals
-		var cachedDateTimeString = aop.GetCurrentDateAsStringFiveSecondCache();
+		var cachedDateTimeString = obj.GetCurrentDateAsStringFiveSecondCache();
 	}
 }
 
 ```
 
+## Durable Cache
+
+As of xCache@0.2.0 you now have the ability to refresh your cache from a background processes without relying on your method being called. To opt into this new feature you will need to register two additional objects:
+
+```csharp
+		//Register xCache Durable Dependencies
+		container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>();
+		container.RegisterType<IDurableCacheRefreshHandler, DurableCacheRefreshHandler>();
+```
+And add Absolute expiration values to the Cache attribute like so:
+
+```csharp
+	//Cache for 90 seconds refreshing every 15 from the cache queue
+	[Cache(Seconds = 15, AbsoluteSeconds = 90)]
+```
+
+When you add an Absolute[Hours|Minutes|Seconds] value you are setting the maximum lifetime for the item to be cached, and using the Seconds, Minutes, or Hours attribute to indicate how often your item should be refreshed within that lifetime.
+
+It is important to note that in the absence of an Absolute value, the Seconds, Minutes and Hours attribute will continue to act as cache expiration times and will only be updated when a cache miss occurs.
+
+The TimedDurableCacheQueue will schedule a refresh of cached items using .NET timers to ensure that your items are refreshed at the specified intevals. It can be overridden with your own prefered implementation.
+
+The DurableCacheRefreshHandler interogates your code to find the correct method and paramters needed to refresh the cache and executed on a seperate background thread.
 
 ### Version
-* xCache 0.1.0
-* xCache.Aop.Unity 0.2.0
+* xCache 0.2.0
+* xCache.Aop.Unity 0.3.0
 
 ### License
 MIT
@@ -121,3 +144,4 @@ MIT
 
 [core library]:https://www.nuget.org/packages/xCache/
 [Aop Unity]:https://www.nuget.org/packages/xCache.Aop.Unity/
+[xCache.Redis]:https://github.com/Jarlotee/xCache.Redis

@@ -14,9 +14,13 @@ namespace xCache.Aop.Unity
 
         public string GenerateKey(IMethodInvocation invocation)
         {
-            return string.Format(@"{{ ""MethodBase"" : {0}, ""Inputs"": {1} }}",
-                JsonConvert.SerializeObject(invocation.MethodBase, settings),
-                JsonConvert.SerializeObject(invocation.Inputs, settings));
+            var format = new JsonCacheKeyFormat
+            {
+                MethodBase = invocation.MethodBase,
+                Inputs = invocation.Inputs
+            };
+
+            return JsonConvert.SerializeObject(format, settings);
         }
     }
 }

@@ -9,22 +9,22 @@ namespace xCache
     {
         System.Runtime.Caching.MemoryCache _cache = System.Runtime.Caching.MemoryCache.Default;
 
-        public void Add<T>(string key, T item, TimeSpan expiration)
+        public void Add<T>(string key, CacheItem<T> item)
         {
-            _cache.Add(key, item, new DateTimeOffset(DateTime.Now.Add(expiration)));
+            _cache.Set(key, item, item.Expires);
         }
 
-        public T Get<T>(string key)
+        CacheItem<T> ICache.Get<T>(string key)
         {
             var value = _cache.Get(key);
 
             if (value != null)
             {
-                return (T)value;
+                return (CacheItem<T>)value;
             }
             else
             {
-                return default(T);
+                return null;
             }
         }
     }

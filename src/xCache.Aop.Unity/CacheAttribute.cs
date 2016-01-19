@@ -11,22 +11,24 @@ namespace xCache.Aop.Unity
         public int Minutes { get; set; }
         public int Seconds { get; set; }
 
+        public int AbsoluteHours { get; set; }
+        public int AbsoluteMinutes { get; set; }
+        public int AbsoluteSeconds { get; set; }
+
         public override ICallHandler CreateHandler(IUnityContainer container)
         {
-            var cache = container.Resolve<ICache>();
-            var keyGenerator = container.Resolve<ICacheKeyGenerator>();
+            var expiration = new TimeSpan(Hours, Minutes, Seconds);
+            var absoluteExpiration = new TimeSpan(AbsoluteHours, AbsoluteMinutes, AbsoluteSeconds);
 
-            var handler = new CacheAttributeCallHandler(cache, keyGenerator)
+            //default to 5 minutes if necessary
+            expiration = expiration.TotalSeconds > 0 ? expiration : new TimeSpan(0, 5, 0);
+
+            var handler = new CacheAttributeCallHandler(container)
             {
                 Order = 1,
-                Timeout = new TimeSpan(Hours, Minutes, Seconds)
+                Expiration = expiration,
+                AbsoluteExpiration = absoluteExpiration.TotalSeconds > 0 ? absoluteExpiration : (TimeSpan?)null
             };
-
-            //Set Default to 5
-            if (handler.Timeout.TotalSeconds <= 0)
-            {
-                handler.Timeout = new TimeSpan(0, 5, 0);
-            }
 
             return handler;
         }

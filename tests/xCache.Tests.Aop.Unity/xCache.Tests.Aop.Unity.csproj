@@ -71,8 +71,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CacheKeyGenerator\JsonCacheKeyGeneratorTests.cs" />
-    <Compile Include="Core\UnityAop.cs" />
-    <Compile Include="Core\UnityAopTests.cs" />
+    <Compile Include="Core\UnityCacheEnabledObject.cs" />
+    <Compile Include="Core\UnityCacheEnabledTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
