@@ -4,7 +4,7 @@ using System;
 
 namespace xCache.Aop.Unity
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class CacheAttribute : HandlerAttribute
     {
         public int Hours { get; set; }
@@ -15,6 +15,8 @@ namespace xCache.Aop.Unity
         public int AbsoluteMinutes { get; set; }
         public int AbsoluteSeconds { get; set; }
 
+        public string CacheName { get; set; }
+
         public override ICallHandler CreateHandler(IUnityContainer container)
         {
             var expiration = new TimeSpan(Hours, Minutes, Seconds);
@@ -23,9 +25,9 @@ namespace xCache.Aop.Unity
             //default to 5 minutes if necessary
             expiration = expiration.TotalSeconds > 0 ? expiration : new TimeSpan(0, 5, 0);
 
-            var handler = new CacheAttributeCallHandler(container)
+            var handler = new CacheAttributeCallHandler(container, CacheName)
             {
-                Order = 1,
+                Order = Order,
                 Expiration = expiration,
                 AbsoluteExpiration = absoluteExpiration.TotalSeconds > 0 ? absoluteExpiration : (TimeSpan?)null
             };

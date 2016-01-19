@@ -19,6 +19,8 @@ namespace xCache.Tests.Aop.Unity.Core
 
             //Register xCache
             _container.RegisterType<ICache, MemoryCache>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<ICache, MemoryCache>("One", new ContainerControlledLifetimeManager());
+            _container.RegisterType<ICache, MemoryCache>("Two", new ContainerControlledLifetimeManager());
             _container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IDurableCacheRefreshHandler, DurableCacheRefreshHandler>(new ContainerControlledLifetimeManager());

@@ -11,6 +11,11 @@ namespace xCache.Tests.Aop.Unity.Core
     {
         private int NumberOfCalls = 0;
 
+        public int GetNumberOfTimesCalled()
+        {
+            return NumberOfCalls;
+        }
+
         [Cache(Seconds = 5)]
         public async Task<string> GetCurrentDataAsStringFiveSecondCacheAsync()
         {
@@ -86,9 +91,36 @@ namespace xCache.Tests.Aop.Unity.Core
             return newObject;
         }
 
-        public int GetNumberOfTimesCalled()
+        [Cache(Seconds = 15, CacheName = "One", Order = 1)]
+        [Cache(Seconds = 5, CacheName = "Two", Order = 2)]
+        public string GetCurrentDateTimeFiveSecondCacheTwoTiers()
         {
-            return NumberOfCalls;
+            NumberOfCalls++;
+            return DateTime.Now.ToString();
+        }
+
+        [Cache(Seconds = 15, CacheName = "One", Order = 1)]
+        [Cache(Seconds = 5, CacheName = "Two", Order = 2)]
+        public async Task<string> GetCurrentDateTimeFiveSecondCacheTwoTiersAsync()
+        {
+            NumberOfCalls++;
+            return await Task.FromResult(DateTime.Now.ToString());
+        }
+
+        [Cache(Seconds = 15, Order = 1)]
+        [Cache(Seconds = 5, CacheName = "Two", Order = 2)]
+        public string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefault()
+        {
+            NumberOfCalls++;
+            return DateTime.Now.ToString();
+        }
+
+        [Cache(Seconds = 15, Order = 1)]
+        [Cache(Seconds = 5, CacheName = "Two", Order = 2)]
+        public async Task<string> GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefaultAsync()
+        {
+            NumberOfCalls++;
+            return await Task.FromResult(DateTime.Now.ToString());
         }
     }
 }
