@@ -109,7 +109,7 @@ public class CacheTests
 
 ## Durable Cache
 
-As of xCache@0.2.0 you now have the ability to refresh your cache from a background processes without relying on your method being called. To opt into this new feature you will need to register two additional objects:
+As of xCache.Aop.Unity@0.3.0 you now have the ability to refresh your cache from a background processes without relying on your method being called. To opt into this new feature you will need to register two additional objects:
 
 ```csharp
 		//Register xCache Durable Dependencies
@@ -131,16 +131,34 @@ The TimedDurableCacheQueue will schedule a refresh of cached items using .NET ti
 
 The DurableCacheRefreshHandler interogates your code to find the correct method and paramters needed to refresh the cache and executed on a seperate background thread.
 
+## Caching Tiers
+As of xCache.Aop.Unity@0.4.0 you can now specify multiple caching tiers each with thier own lifetimes.
+
+You will need to overload the registration of ICache with your desired caching implementations:
+
+```csharp
+//Register multiple tiers by name
+container.RegisterType<ICache, MemoryCache>();
+container.RegisterType<ICache, RedisCache>("Redis");
+```
+
+Then add the appropriate cache attributes:
+
+```csharp
+[Cache(Minutes = 1, Order = 1)]
+[Cache(Minutes = 30, CacheName = "Redis", Order = 2)]
+public string GetCurrentDateAsString()
+{
+	return DateTime.Now.ToString();
+}
+```
+
 ### Version
 * xCache 0.2.0
-* xCache.Aop.Unity 0.3.0
+* xCache.Aop.Unity 0.4.0
 
 ### License
 MIT
-
-### Potential Future Features
-* Handle Out Parameters caching
-* Add Reflection based extensions method to configure objects that use CacheAttribute in Aop.Unity
 
 [core library]:https://www.nuget.org/packages/xCache/
 [Aop Unity]:https://www.nuget.org/packages/xCache.Aop.Unity/
