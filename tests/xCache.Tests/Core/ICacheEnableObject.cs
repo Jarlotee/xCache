@@ -6,6 +6,7 @@ namespace xCache.Tests.Core
 {
     public interface ICacheEnableObject
     {
+        int GetNumberOfTimesCalled();
         string GetCurrentDateAsStringFiveSecondCache();
         Task<string> GetCurrentDataAsStringFiveSecondCacheAsync();
         DateTime GetCurrentDateTimeFiveSecondCache();
@@ -20,6 +21,6 @@ namespace xCache.Tests.Core
         Task<string> GetCurrentDateTimeFiveSecondCacheTwoTiersAsync();
         string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefault();
         Task<string> GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefaultAsync();
-        int GetNumberOfTimesCalled();
+        string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary();
     }
 }

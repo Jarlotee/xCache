@@ -21,6 +21,7 @@ namespace xCache.Tests.Aop.Unity.Core
             _container.RegisterType<ICache, MemoryCache>(new ContainerControlledLifetimeManager());
             _container.RegisterType<ICache, MemoryCache>("One", new ContainerControlledLifetimeManager());
             _container.RegisterType<ICache, MemoryCache>("Two", new ContainerControlledLifetimeManager());
+            _container.RegisterType<ICache, DictionaryCache>("DictionaryCache", new ContainerControlledLifetimeManager());
             _container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>(new ContainerControlledLifetimeManager());
             _container.RegisterType<IDurableCacheRefreshHandler, DurableCacheRefreshHandler>(new ContainerControlledLifetimeManager());
@@ -37,6 +38,13 @@ namespace xCache.Tests.Aop.Unity.Core
         {
             var queue = _container.Resolve<IDurableCacheQueue>();
             queue.Purge();
+        }
+
+        protected override void PurgeDictionaryCache()
+        {
+            //TODO figure out how to dispose this through unity
+            var dictionary = (DictionaryCache)_container.Resolve<ICache>("DictionaryCache");
+            dictionary.Purge();
         }
     }
 }

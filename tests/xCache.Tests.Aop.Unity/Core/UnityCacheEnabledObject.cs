@@ -122,5 +122,13 @@ namespace xCache.Tests.Aop.Unity.Core
             NumberOfCalls++;
             return await Task.FromResult(DateTime.Now.ToString());
         }
+
+        [Cache(Seconds = 15, CacheName = "DictionaryCache", Order = 1)]
+        [Cache(Seconds = 5, CacheName = "Two", Order = 2)]
+        public string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary()
+        {
+            NumberOfCalls++;
+            return DateTime.Now.ToString();
+        }
     }
 }
