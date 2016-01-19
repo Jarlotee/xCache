@@ -53,6 +53,15 @@ namespace xCache.Durable
             _cleanup.Start();
         }
 
+        public void Purge()
+        {
+            foreach (var timer in _timers)
+            {
+                timer.Value.Enabled = false;
+            }
+        }
+
+
         public void ScheduleRefresh(DurableCacheRefreshEvent refreshEvent)
         {
             var timer = new Timer

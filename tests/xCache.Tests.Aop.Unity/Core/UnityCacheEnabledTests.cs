@@ -30,5 +30,11 @@ namespace xCache.Tests.Aop.Unity.Core
 
             _cached = _container.Resolve<ICacheEnableObject>();
         }
+
+        protected override void PurgeDurableCacheQueue()
+        {
+            var queue = _container.Resolve<IDurableCacheQueue>();
+            queue.Purge();
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace xCache.Durable
         public MethodBase MethodBase { get; set; }
         public object[] Parameters { get; set; }
         public TimeSpan RefreshTime { get; set; }
+        public Type ReturnType { get; set; }
         public Type Type { get; set; }
         public DateTime UtcLifetime { get; set; }
     }

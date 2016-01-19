@@ -107,10 +107,13 @@ public class CacheTests
 
 ```
 
+## Durable Cache
+
+This is new and needs to be talked about
 
 ### Version
-* xCache 0.1.0
-* xCache.Aop.Unity 0.2.0
+* xCache 0.2.0
+* xCache.Aop.Unity 0.3.0
 
 ### License
 MIT

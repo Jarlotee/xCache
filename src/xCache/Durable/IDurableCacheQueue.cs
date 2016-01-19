@@ -3,5 +3,6 @@
     public interface IDurableCacheQueue
     {
         void ScheduleRefresh(DurableCacheRefreshEvent refreshEvent);
+        void Purge();
     }
 }

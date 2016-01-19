@@ -16,5 +16,6 @@ namespace xCache.Tests.Core
         Task<string> GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
         string GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(int p0);
         ComplexObject GetComplexObjectWithComplexParameterFifeenSecondCacheAbsoluteNinetySeconds(ComplexObject obj);
+        int GetNumberOfTimesCalled();
     }
 }

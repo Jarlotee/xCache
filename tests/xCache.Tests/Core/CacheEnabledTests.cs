@@ -11,6 +11,11 @@ namespace xCache.Tests.Core
     {
         protected ICacheEnableObject _cached = null;
 
+        protected virtual void PurgeDurableCacheQueue()
+        {
+
+        }
+
         [Fact]
         public void TestFiveSecondTimeout()
         {
@@ -151,6 +156,11 @@ namespace xCache.Tests.Core
 
             //Check Trace to make sure cache stops refreshing
             Thread.Sleep(new TimeSpan(0, 0, 40));
+
+            var notCached = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
+
+            Assert.True(DateTime.Parse(notCached).Subtract(DateTime.Now).TotalSeconds < 5,
+                "Absolute Cache was not honored");
         }
 
         [Fact]
@@ -181,6 +191,11 @@ namespace xCache.Tests.Core
 
             //Check Trace to make sure cache stops refreshing
             Thread.Sleep(new TimeSpan(0, 0, 40));
+
+            var notCached = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
+
+            Assert.True(DateTime.Parse(notCached).Subtract(DateTime.Now).TotalSeconds < 5,
+                "Absolute Cache was not honored");
         }
 
         [Fact]
@@ -234,6 +249,104 @@ namespace xCache.Tests.Core
             //Cache was resceduled
             Assert.NotEqual(cached2.FourthDimension.Keys.First(), cached3.FourthDimension.Keys.First());
             Assert.Equal(complexObject.Ints, cached3.Ints);
+
+            //Check Trace to make sure cache stops refreshing
+            Thread.Sleep(new TimeSpan(0, 0, 40));
+        }
+
+        [Fact]
+        public void TestNullFiveSecondTimeout()
+        {
+            var now = _cached.GetNullAsStringFiveSecondCache();
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached = _cached.GetNullAsStringFiveSecondCache();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached2 = _cached.GetNullAsStringFiveSecondCache();
+
+            Assert.Equal(1, _cached.GetNumberOfTimesCalled());
+        }
+
+        [Fact]
+        public async Task TestNullFiveSecondTimeoutAsync()
+        {
+            var now = await _cached.GetNullAsStringFiveSecondCacheAsync();
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached = await _cached.GetNullAsStringFiveSecondCacheAsync();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached2 = await _cached.GetNullAsStringFiveSecondCacheAsync();
+
+            Assert.Equal(1, _cached.GetNumberOfTimesCalled());
+        }
+
+        [Fact]
+        public void TestDurableCacheRequeue()
+        {
+            var now = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
+
+            PurgeDurableCacheQueue();
+            Thread.Sleep(new TimeSpan(0, 0, 0, 11));
+
+            var cached = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
+
+            //Cache has not been refreshed
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 11));
+
+            //Cache miss should be detected and queued immediatly
+            var cached2 = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
+
+            //Cache has not yet been refreshed
+            Assert.NotEqual(cached, cached2);
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached3 = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
+
+            Assert.Equal(cached2, cached3);
+
+            //Check Trace to make sure cache stops refreshing
+            Thread.Sleep(new TimeSpan(0, 0, 40));
+        }
+
+        [Fact]
+        public async Task TestDurableCacheRequeueAsync()
+        {
+            var now = await _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
+
+            PurgeDurableCacheQueue();
+            Thread.Sleep(new TimeSpan(0, 0, 0, 11));
+
+            var cached = await _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
+
+            //Cache has not been refreshed
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 11));
+
+            //Cache miss should be detected and queued immediatly
+            var cached2 = await _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
+
+            //Cache has not yet been refreshed
+            Assert.NotEqual(cached, cached2);
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached3 = await _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
+
+            Assert.Equal(cached2, cached3);
 
             //Check Trace to make sure cache stops refreshing
             Thread.Sleep(new TimeSpan(0, 0, 40));

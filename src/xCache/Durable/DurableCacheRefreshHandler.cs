@@ -24,22 +24,24 @@ namespace xCache.Durable
 
                 var value = refreshEvent.MethodBase.Invoke(obj, refreshEvent.Parameters);
 
-                if (value != null)
+                if (refreshEvent.MethodBase.IsGenericTask())
                 {
-                    if (refreshEvent.MethodBase.IsGenericTask())
+                    var task = Task.Run(async () =>
                     {
-                        var task = Task.Run(async () =>
-                        {
-                            await CacheExtensions.AddToCache(_cache, (dynamic)value,
-                                refreshEvent.Key, refreshEvent.AbsoluteExpiration, refreshEvent.RefreshTime);
-                        });
+                        await (dynamic)typeof(CacheExtensions).GetMethod("AddToCacheAsync")
+                                .MakeGenericMethod(refreshEvent.ReturnType)
+                                .Invoke(null, new object[] {_cache, value,
+                                    refreshEvent.Key, refreshEvent.UtcLifetime});
+                    });
 
-                        task.Wait();
-                    }
-                    else
-                    {
-                        _cache.Add(refreshEvent.Key, value, refreshEvent.AbsoluteExpiration);
-                    }
+                    task.Wait();
+                }
+                else
+                {
+                    typeof(CacheExtensions).GetMethod("AddToCache")
+                                .MakeGenericMethod(refreshEvent.ReturnType)
+                                .Invoke(null, new object[] {_cache, value,
+                                    refreshEvent.Key, refreshEvent.UtcLifetime});
                 }
             }
             catch (Exception ex)

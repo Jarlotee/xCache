@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CacheItem.cs" />
     <Compile Include="Durable\DurableCacheRefreshEvent.cs" />
     <Compile Include="Durable\DurableCacheRefreshHandler.cs" />
     <Compile Include="Extensions\CacheExtensions.cs" />
