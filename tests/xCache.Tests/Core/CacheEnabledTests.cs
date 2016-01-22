@@ -22,6 +22,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Caching")]
         public void TestFiveSecondTimeout()
         {
             var now = _cached.GetCurrentDateAsStringFiveSecondCache();
@@ -46,6 +47,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Caching")]
         public async Task TestFiveSecondTimeoutAsync()
         {
             var now = await _cached.GetCurrentDataAsStringFiveSecondCacheAsync();
@@ -70,6 +72,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Caching")]
         public void TestFiveSecondTimeoutStruct()
         {
             var now = _cached.GetCurrentDateTimeFiveSecondCache();
@@ -94,6 +97,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Caching")]
         public async Task TestFiveSecondTimeoutStructAsync()
         {
             var now = await _cached.GetCurrentDateTimeFiveSecondCacheAsync();
@@ -118,6 +122,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Caching")]
         public void TestNullResult()
         {
             var result = _cached.GetNullAsStringFiveSecondCache();
@@ -126,6 +131,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Caching")]
         public async Task TestNullResultAsync()
         {
             var result = await _cached.GetNullAsStringFiveSecondCacheAsync();
@@ -134,6 +140,91 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Performance")]
+        public void TestHighVolumneOfCachedElements()
+        {
+            for (int i = 0; i < 100000; i++)
+            {
+                _cached.GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(i);
+            }
+
+            Thread.Sleep(1000 * 16);
+
+            for (int i = 0; i < 100000; i++)
+            {
+                var item = _cached.GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(i);
+
+                Assert.True(item.EndsWith(":" + i.ToString()));
+            }
+
+            Thread.Sleep(1000 * 120);
+        }
+
+        [Fact]
+        [Trait("Feature", "Async")]
+        public void TestFiveSecondTimeoutAsyncHelper()
+        {
+            var now = AsyncHelpers.RunSync(() => _cached.GetCurrentDateTimeListFiveSecondCacheAsync());
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached = AsyncHelpers.RunSync(() => _cached.GetCurrentDateTimeListFiveSecondCacheAsync());
+
+            Assert.Equal(now.First(), cached.First());
+
+            Thread.Sleep(new TimeSpan(0, 0, 5));
+
+            var cached2 = AsyncHelpers.RunSync(() => _cached.GetCurrentDateTimeListFiveSecondCacheAsync());
+
+            Assert.NotEqual(now.First(), cached2.First());
+
+            Thread.Sleep(new TimeSpan(0, 0, 1));
+
+            var cached3 = AsyncHelpers.RunSync(() => _cached.GetCurrentDateTimeListFiveSecondCacheAsync());
+
+            Assert.Equal(cached2.First(), cached3.First());
+        }
+
+        [Fact]
+        [Trait("Feature", "Null Caching")]
+        public void TestNullFiveSecondTimeout()
+        {
+            var now = _cached.GetNullAsStringFiveSecondCache();
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached = _cached.GetNullAsStringFiveSecondCache();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached2 = _cached.GetNullAsStringFiveSecondCache();
+
+            Assert.Equal(1, _cached.GetNumberOfTimesCalled());
+        }
+
+        [Fact]
+        [Trait("Feature", "Null Caching")]
+        public async Task TestNullFiveSecondTimeoutAsync()
+        {
+            var now = await _cached.GetNullAsStringFiveSecondCacheAsync();
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached = await _cached.GetNullAsStringFiveSecondCacheAsync();
+
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 2));
+
+            var cached2 = await _cached.GetNullAsStringFiveSecondCacheAsync();
+
+            Assert.Equal(1, _cached.GetNumberOfTimesCalled());
+        }
+
+        [Fact]
+        [Trait("Feature", "Durable")]
         public void TestTenSecondCacheAbsoluteThirtySeconds()
         {
             var now = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
@@ -169,6 +260,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Durable")]
         public async Task TestTenSecondCacheAbsoluteThirtySecondsAsync()
         {
             var now = await _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
@@ -204,27 +296,8 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
-        public void TestHighVolumneOfCachedElements()
-        {
-            for (int i = 0; i < 100000; i++)
-            {
-                _cached.GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(i);
-            }
-
-            Thread.Sleep(1000 * 16);
-
-            for (int i = 0; i < 100000; i++)
-            {
-                var item = _cached.GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(i);
-
-                Assert.True(item.EndsWith(":" + i.ToString()));
-            }
-
-            Thread.Sleep(1000 * 120);
-        }
-
-        [Fact]
-        public void TestDurablewCacheWithComplicatedObject()
+        [Trait("Feature", "Durable")]
+        public void TestDurableCacheWithComplicatedParameter()
         {
             var complexObject = new ComplexObject { Ints = { 5, 5, 5 } };
 
@@ -260,43 +333,8 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
-        public void TestNullFiveSecondTimeout()
-        {
-            var now = _cached.GetNullAsStringFiveSecondCache();
-
-            Thread.Sleep(new TimeSpan(0, 0, 2));
-
-            var cached = _cached.GetNullAsStringFiveSecondCache();
-
-            Assert.Equal(now, cached);
-
-            Thread.Sleep(new TimeSpan(0, 0, 2));
-
-            var cached2 = _cached.GetNullAsStringFiveSecondCache();
-
-            Assert.Equal(1, _cached.GetNumberOfTimesCalled());
-        }
-
-        [Fact]
-        public async Task TestNullFiveSecondTimeoutAsync()
-        {
-            var now = await _cached.GetNullAsStringFiveSecondCacheAsync();
-
-            Thread.Sleep(new TimeSpan(0, 0, 2));
-
-            var cached = await _cached.GetNullAsStringFiveSecondCacheAsync();
-
-            Assert.Equal(now, cached);
-
-            Thread.Sleep(new TimeSpan(0, 0, 2));
-
-            var cached2 = await _cached.GetNullAsStringFiveSecondCacheAsync();
-
-            Assert.Equal(1, _cached.GetNumberOfTimesCalled());
-        }
-
-        [Fact]
-        public void TestDurableCacheRequeue()
+        [Trait("Feature", "Durable")]
+        public void TestDurableCacheEvict()
         {
             var now = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
 
@@ -327,7 +365,8 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
-        public async Task TestDurableCacheRequeueAsync()
+        [Trait("Feature", "Durable")]
+        public async Task TestDurableCacheEvictAsync()
         {
             var now = await _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySecondsAsync();
 
@@ -358,6 +397,39 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Durable")]
+        public void TestDurableCacheStalenessRequeue()
+        {
+            var now = _cached.GetCurrentDateTimeTenSecondCacheAbsoluteNinetySecondsResecheduleStaleness();
+
+            PurgeDurableCacheQueue();
+            Thread.Sleep(new TimeSpan(0, 0, 0, 11));
+
+            var cached = _cached.GetCurrentDateTimeTenSecondCacheAbsoluteNinetySecondsResecheduleStaleness();
+
+            //Cache has not been refreshed
+            Assert.Equal(now, cached);
+
+            Thread.Sleep(new TimeSpan(0, 0, 11));
+
+            //Cache miss should be detected and differed
+            var cached2 = _cached.GetCurrentDateTimeTenSecondCacheAbsoluteNinetySecondsResecheduleStaleness();
+
+            //Cache has not yet been refreshed
+            Assert.Equal(cached, cached2);
+
+            Thread.Sleep(new TimeSpan(0, 0, 11));
+
+            var cached3 = _cached.GetCurrentDateTimeTenSecondCacheAbsoluteNinetySecondsResecheduleStaleness();
+
+            Assert.NotEqual(cached2, cached3);
+
+            //Check Trace to make sure cache stops refreshing
+            Thread.Sleep(new TimeSpan(0, 0, 40));
+        }
+
+        [Fact]
+        [Trait("Feature", "Tiers")]
         public void TestTwoTierCache()
         {
             //Should be served from tier 2
@@ -379,6 +451,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Tiers")]
         public async Task TestTwoTierCacheAsync()
         {
             //Should be served from tier 2
@@ -400,6 +473,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Tiers")]
         public void TestTwoTierCacheWithDefault()
         {
             //Should be served from tier 2
@@ -421,6 +495,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Tiers")]
         public async Task TestTwoTierCacheWithDefaultAsync()
         {
             //Should be served from tier 2
@@ -442,6 +517,7 @@ namespace xCache.Tests.Core
         }
 
         [Fact]
+        [Trait("Feature", "Tiers")]
         public void TestTwoTierCacheWithDictionary()
         {
             //Should be served from tier 2

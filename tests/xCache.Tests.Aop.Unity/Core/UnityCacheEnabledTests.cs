@@ -1,6 +1,8 @@
 ﻿using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.InterceptionExtension;
+using System;
 using xCache.Aop.Unity;
+using xCache.Aop.Unity.Durable;
 using xCache.Durable;
 using xCache.Tests.Core;
 
@@ -23,8 +25,10 @@ namespace xCache.Tests.Aop.Unity.Core
             _container.RegisterType<ICache, MemoryCache>("Two", new ContainerControlledLifetimeManager());
             _container.RegisterType<ICache, DictionaryCache>("DictionaryCache", new ContainerControlledLifetimeManager());
             _container.RegisterType<ICacheKeyGenerator,JsonCacheKeyGenerator>(new ContainerControlledLifetimeManager());
-            _container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>(new ContainerControlledLifetimeManager());
-            _container.RegisterType<IDurableCacheRefreshHandler, DurableCacheRefreshHandler>(new ContainerControlledLifetimeManager());
+            _container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionFactory((c) => new TimedDurableCacheQueue(c.Resolve<IDurableCacheRefreshHandler>(), new TimeSpan(0,0,30))));
+            _container.RegisterType<IDurableCacheRefreshHandler, UnityDurableCacheRefreshHandler>(new ContainerControlledLifetimeManager());
 
             //Register test class with interception
             _container.RegisterType<ICacheEnableObject, UnityCacheEnabledObject>(

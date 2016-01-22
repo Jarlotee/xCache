@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using xCache.Tests.CacheKeyGenerator;
 
@@ -22,5 +23,7 @@ namespace xCache.Tests.Core
         string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefault();
         Task<string> GetCurrentDateTimeFiveSecondCacheTwoTiersWithDefaultAsync();
         string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary();
+        Task<IEnumerable<string>> GetCurrentDateTimeListFiveSecondCacheAsync();
+        string GetCurrentDateTimeTenSecondCacheAbsoluteNinetySecondsResecheduleStaleness();
     }
 }

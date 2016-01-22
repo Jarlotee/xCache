@@ -43,13 +43,13 @@
     <Compile Include="CacheItem.cs" />
     <Compile Include="DictionaryCache.cs" />
     <Compile Include="Durable\DurableCacheRefreshEvent.cs" />
-    <Compile Include="Durable\DurableCacheRefreshHandler.cs" />
+    <Compile Include="Durable\DurableMethod.cs" />
     <Compile Include="Extensions\CacheExtensions.cs" />
+    <Compile Include="Extensions\DurableMethodExtensions.cs" />
     <Compile Include="Extensions\MethodBaseExtensions.cs" />
     <Compile Include="ICache.cs" />
     <Compile Include="Durable\IDurableCacheQueue.cs" />
     <Compile Include="Durable\IDurableCacheRefreshHandler.cs" />
-    <Compile Include="Durable\InProcessDurableCacheQueue.cs" />
     <Compile Include="MemoryCache.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Durable\TimedDurableCacheQueue.cs" />

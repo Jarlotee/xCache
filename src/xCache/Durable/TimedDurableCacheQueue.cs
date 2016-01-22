@@ -11,7 +11,7 @@ namespace xCache.Durable
         private readonly IDurableCacheRefreshHandler _handler;
         private readonly Timer _cleanup;
 
-        public TimedDurableCacheQueue(IDurableCacheRefreshHandler handler)
+        public TimedDurableCacheQueue(IDurableCacheRefreshHandler handler, TimeSpan cleanupInterval)
         {
             _handler = handler;
             _timers = new ConcurrentDictionary<Guid, Timer>();
@@ -19,12 +19,11 @@ namespace xCache.Durable
             _cleanup = new Timer
             {
                 AutoReset = true,
-                Interval = 1000 * 30
+                Interval = cleanupInterval.TotalMilliseconds
             };
 
             _cleanup.Elapsed += (s, e) =>
             {
-                Trace.TraceInformation("Timed Cache Queue Cleanup started");
                 var count = 0;
 
                 foreach (var item in _timers)
@@ -46,8 +45,6 @@ namespace xCache.Durable
                 }
 
                 var timerCountAfterCleanup = _timers.Count;
-
-                Trace.TraceInformation("Timed Cache Queue Cleanup ended, released {0} timer(s)", count);
             };
 
             _cleanup.Start();
@@ -76,7 +73,6 @@ namespace xCache.Durable
                 if (refreshEvent.UtcLifetime <= DateTime.UtcNow.Add(refreshEvent.RefreshTime))
                 {
                     timer.Stop();
-                    Trace.TraceInformation("Done refreshing for key {0}", refreshEvent.Key);
                 }
             };
 

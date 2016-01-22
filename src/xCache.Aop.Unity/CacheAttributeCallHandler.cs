@@ -1,10 +1,10 @@
 ﻿using Microsoft.Practices.Unity;
 using Microsoft.Practices.Unity.InterceptionExtension;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using xCache.Durable;
 using xCache.Extensions;
+using System.Linq;
 
 namespace xCache.Aop.Unity
 {
@@ -13,6 +13,8 @@ namespace xCache.Aop.Unity
         public int Order { get; set; }
         public TimeSpan Expiration { get; set; }
         public TimeSpan? AbsoluteExpiration { get; set; }
+        public TimeSpan MaximumStaleness { get; set; }
+        public bool RescheduleStale { get; set; }
 
         private IUnityContainer _container;
         private readonly ICache _cache;
@@ -30,16 +32,10 @@ namespace xCache.Aop.Unity
 
         public IMethodReturn Invoke(IMethodInvocation input, GetNextHandlerDelegate getNext)
         {
-            if (!string.IsNullOrWhiteSpace(_cacheName))
-            {
-                Trace.TraceInformation("Cache Name {0} was called", _cacheName);
-            }
-
             var cacheKey = _keyGenerator.GenerateKey(input);
 
             var methodIsTask = input.MethodBase.IsGenericTask();
-            var returnType = methodIsTask ? input.MethodBase.GetGenericReturnTypeArgument(0)
-                : input.MethodBase.GetReturnType();
+            var returnType = input.MethodBase.GetReturnType();
 
             var cachedResult = typeof(ICache).GetMethod("Get")
                     .MakeGenericMethod(returnType)
@@ -53,10 +49,18 @@ namespace xCache.Aop.Unity
             if (cachedResult != null && AbsoluteExpiration != null)
             {
                 var lastUpdate = (DateTime)CacheExtensions.GetLastUpdate((dynamic)cachedResult);
+                var expires = (DateTime)CacheExtensions.GetExpires((dynamic)cachedResult);
 
-                if (DateTime.UtcNow.Subtract(lastUpdate).TotalMinutes > 2 * Expiration.TotalMinutes)
+                if (DateTime.UtcNow.Subtract(lastUpdate).TotalSeconds > MaximumStaleness.TotalSeconds)
                 {
-                    cachedResult = null;
+                    if (RescheduleStale && DateTime.UtcNow.Add(Expiration) < expires)
+                    {
+                        scheduleDurableRefresh = true;
+                    }
+                    else
+                    {
+                        cachedResult = null;
+                    }
                 }
             }
 
@@ -71,15 +75,10 @@ namespace xCache.Aop.Unity
                 {
                     if (methodIsTask)
                     {
-                        var task = Task.Run(async () =>
-                        {
-                            await (dynamic)typeof(CacheExtensions).GetMethod("AddToCacheAsync")
-                                .MakeGenericMethod(returnType)
-                                .Invoke(null, new object[] {_cache, newResult.ReturnValue,
-                                    cacheKey, DateTime.UtcNow.Add(AbsoluteExpiration ?? Expiration) });
-                        });
-
-                        task.Wait();
+                        newResult.ReturnValue = (dynamic)typeof(CacheExtensions).GetMethod("AddToCacheAsync")
+                            .MakeGenericMethod(returnType)
+                            .Invoke(null, new object[] {_cache, newResult.ReturnValue,
+                                cacheKey, DateTime.UtcNow.Add(AbsoluteExpiration ?? Expiration) });
                     }
                     else
                     {
@@ -117,17 +116,24 @@ namespace xCache.Aop.Unity
                 input.Inputs.CopyTo(parameters, 0);
 
                 var queue = _container.Resolve<IDurableCacheQueue>();
-
+                
                 queue.ScheduleRefresh(new DurableCacheRefreshEvent
                 {
                     AbsoluteExpiration = AbsoluteExpiration.Value,
+                    CacheName = _cacheName,
                     Key = cacheKey,
-                    MethodBase = input.MethodBase,
+                    Method = new DurableMethod
+                    {
+                        DeclaringType = input.Target.GetType(),
+                        Interface = input.MethodBase.DeclaringType,
+                        Name = input.MethodBase.Name,
+                        Parameters = input.MethodBase.GetParameters()
+                            .Select(p => p.ParameterType).ToArray()
+                    },
                     Parameters = parameters,
-                    Type = input.Target.GetType(),
                     RefreshTime = Expiration,
-                    ReturnType = returnType,
-                    UtcLifetime = DateTime.UtcNow.Add(AbsoluteExpiration.Value),
+                    UtcLifetime = cachedResult != null ? (DateTime)CacheExtensions.GetExpires((dynamic)cachedResult) : 
+                        DateTime.UtcNow.Add(AbsoluteExpiration.Value),
                 });
             }
 

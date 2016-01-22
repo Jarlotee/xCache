@@ -8,6 +8,7 @@ using Xunit;
 
 namespace xCache.Tests.Aop.Unity.CacheKeyGenerator
 {
+    [Trait("Feature", "Cache Key Generation")]
     public class JsonCacheKeyGeneratorTests
     {
         ICacheKeyGenerator _generator;

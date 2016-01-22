@@ -39,7 +39,8 @@ namespace xCache.Extensions
         public static Type GetReturnType(this MethodBase method)
         {
             var methodInfo = (MethodInfo)method;
-            return methodInfo.ReturnType;
+            return method.IsGenericTask() ? method.GetGenericReturnTypeArgument(0)
+                : methodInfo.ReturnType;
         }
     }
 }
