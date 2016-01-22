@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xCache", "xCache\xCache.csproj", "{B8006505-1377-4473-97AA-447095CF552F}"
 EndProject
@@ -14,6 +14,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xCache.Tests", "..\tests\xCache.Tests\xCache.Tests.csproj", "{56084A6B-EC07-486E-8FD8-F53AA7EC6A37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xCache.Tests.Aop.Unity", "..\tests\xCache.Tests.Aop.Unity\xCache.Tests.Aop.Unity.csproj", "{FEFAF35E-0CF0-4ACD-BE04-67C603060536}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F50B4DD4-0186-41DB-84F1-2323E2CFD2B6}"
+	ProjectSection(SolutionItems) = preProject
+		..\readme.md = ..\readme.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

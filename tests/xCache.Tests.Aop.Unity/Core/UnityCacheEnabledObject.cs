@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using xCache.Aop.Unity;
@@ -9,6 +10,13 @@ namespace xCache.Tests.Aop.Unity.Core
 {
     public class UnityCacheEnabledObject : ICacheEnableObject
     {
+        private readonly ICache _cache;
+
+        public UnityCacheEnabledObject(ICache cache)
+        {
+            _cache = cache;
+        }
+
         private int NumberOfCalls = 0;
 
         public int GetNumberOfTimesCalled()
@@ -128,6 +136,18 @@ namespace xCache.Tests.Aop.Unity.Core
         public string GetCurrentDateTimeFiveSecondCacheTwoTiersWithDictionary()
         {
             NumberOfCalls++;
+            return DateTime.Now.ToString();
+        }
+
+        [Cache(Seconds = 5)]
+        public async Task<IEnumerable<string>> GetCurrentDateTimeListFiveSecondCacheAsync()
+        {
+            return await Task.FromResult(new List<string> { DateTime.Now.ToString() } as IEnumerable<string>);
+        }
+
+        [Cache(Seconds = 10, AbsoluteSeconds = 90, RescheduleStale = true)]
+        public string GetCurrentDateTimeTenSecondCacheAbsoluteNinetySecondsResecheduleStaleness()
+        {
             return DateTime.Now.ToString();
         }
     }

@@ -38,6 +38,11 @@ namespace xCache.Extensions
             return item.LastUpdate;
         }
 
+        public static DateTime GetExpires<T>(CacheItem<T> item)
+        {
+            return item.Expires;
+        }
+
         public static T Unwrap<T>(CacheItem<T> item)
         {
             return item.Item;

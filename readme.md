@@ -113,7 +113,9 @@ As of xCache.Aop.Unity@0.3.0 you now have the ability to refresh your cache from
 
 ```csharp
 		//Register xCache Durable Dependencies
-		container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>();
+		container.RegisterType<IDurableCacheQueue, TimedDurableCacheQueue>(
+                new ContainerControlledLifetimeManager(),
+                new InjectionFactory((c) => new TimedDurableCacheQueue(c.Resolve<IDurableCacheRefreshHandler>(), new TimeSpan(0,0,30))));
 		container.RegisterType<IDurableCacheRefreshHandler, DurableCacheRefreshHandler>();
 ```
 And add Absolute expiration values to the Cache attribute like so:
@@ -130,6 +132,10 @@ It is important to note that in the absence of an Absolute value, the Seconds, M
 The TimedDurableCacheQueue will schedule a refresh of cached items using .NET timers to ensure that your items are refreshed at the specified intevals. It can be overridden with your own prefered implementation.
 
 The DurableCacheRefreshHandler interogates your code to find the correct method and paramters needed to refresh the cache and executed on a seperate background thread.
+
+### Automatic Rescheduling
+
+Every time an item is retrieved from durable cache it is checked for staleness. By default a stale itme is defined as an item that has not been updated for at least two refresh cycles. You can customize the maximum staleness by setting the MaximumStaleness[Hours|Minutes|Seconds] values.
 
 ## Caching Tiers
 As of xCache.Aop.Unity@0.4.0 you can now specify multiple caching tiers each with thier own lifetimes.
@@ -154,8 +160,8 @@ public string GetCurrentDateAsString()
 ```
 
 ### Version
-* xCache 0.2.0
-* xCache.Aop.Unity 0.4.0
+* xCache 0.2.1
+* xCache.Aop.Unity 0.4.1
 
 ### License
 MIT

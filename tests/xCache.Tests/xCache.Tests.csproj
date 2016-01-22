@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncHelper.cs" />
     <Compile Include="CacheKeyGenerator\AbstractComplexObject.cs" />
     <Compile Include="CacheKeyGenerator\AbstractReferenceMethods.cs" />
     <Compile Include="CacheKeyGenerator\ComplexChildObject.cs" />
