@@ -160,7 +160,7 @@ public string GetCurrentDateAsString()
 ```
 
 ### Version
-* xCache 0.2.1
+* xCache 0.2.2
 * xCache.Aop.Unity 0.4.1
 
 ### License
