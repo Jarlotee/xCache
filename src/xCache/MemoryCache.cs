@@ -27,5 +27,11 @@ namespace xCache
                 return null;
             }
         }
+
+        public bool Remove(string key)
+        {
+            var item = _cache.Remove(key);
+            return item != null;
+        }
     }
 }
