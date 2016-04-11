@@ -26,6 +26,12 @@ namespace xCache
             return null;
         }
 
+        public bool Remove(string key)
+        {
+            object item;
+            return _cache.TryRemove(key, out item);
+        }
+
         public void Purge()
         {
             _cache.Clear();
