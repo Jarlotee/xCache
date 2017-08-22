@@ -11,7 +11,7 @@
     <iconUrl>https://raw.githubusercontent.com/Jarlotee/xCache/master/docs/img/nuget-icon.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial Release</releaseNotes>
+    <releaseNotes>Support for Unity 4</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>Cache Caching Aop Unity</tags>
   </metadata>
