@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using xCache.Durable;
 using xCache.Extensions;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace xCache.Aop.Unity
 {
@@ -20,6 +21,8 @@ namespace xCache.Aop.Unity
         private readonly ICache _cache;
         private readonly ICacheKeyGenerator _keyGenerator;
         private readonly string _cacheName;
+        private static readonly ConcurrentDictionary<string, object> _locks =
+            new ConcurrentDictionary<string, object>();
 
         public CacheAttributeCallHandler(IUnityContainer container, string cacheName)
         {
@@ -65,49 +68,63 @@ namespace xCache.Aop.Unity
             }
 
             // Nothing is cached for this method
-            if (cachedResult == null)
+            object removedObject;
+            try
             {
-                // Get a new result
-                var newResult = getNext()(input, getNext);
-
-                //Do not cache exceptions
-                if (newResult.Exception == null)
+                if (cachedResult == null)
                 {
-                    if (methodIsTask)
+                    lock (_locks.GetOrAdd(cacheKey, new object()))
                     {
-                        newResult.ReturnValue = (dynamic)typeof(CacheExtensions).GetMethod("AddToCacheAsync")
-                            .MakeGenericMethod(returnType)
-                            .Invoke(null, new object[] {_cache, newResult.ReturnValue,
+                        if (cachedResult == null)
+                        {
+                            // Get a new result
+                            var newResult = getNext()(input, getNext);
+
+                            //Do not cache exceptions
+                            if (newResult.Exception == null)
+                            {
+                                if (methodIsTask)
+                                {
+                                    newResult.ReturnValue = (dynamic)typeof(CacheExtensions).GetMethod("AddToCacheAsync")
+                                        .MakeGenericMethod(returnType)
+                                        .Invoke(null, new object[] {_cache, newResult.ReturnValue,
                                 cacheKey, DateTime.UtcNow.Add(AbsoluteExpiration ?? Expiration) });
-                    }
-                    else
-                    {
-                        typeof(CacheExtensions).GetMethod("AddToCache")
-                                .MakeGenericMethod(returnType)
-                                .Invoke(null, new object[] {_cache, newResult.ReturnValue,
+                                }
+                                else
+                                {
+                                    typeof(CacheExtensions).GetMethod("AddToCache")
+                                            .MakeGenericMethod(returnType)
+                                            .Invoke(null, new object[] {_cache, newResult.ReturnValue,
                                     cacheKey, DateTime.UtcNow.Add(AbsoluteExpiration ?? Expiration) });
+                                }
+
+                                //queue refresh if configured by the user
+                                scheduleDurableRefresh = AbsoluteExpiration != null;
+                            }
+
+                            unwrappedResult = newResult.ReturnValue;
+                        }
                     }
-
-                    //queue refresh if configured by the user
-                    scheduleDurableRefresh = AbsoluteExpiration != null;
-                }
-
-                unwrappedResult = newResult.ReturnValue;
-            }
-            else
-            {
-                if (methodIsTask)
-                {
-                    var unwrappedResultMissingTask = CacheExtensions.Unwrap((dynamic)cachedResult);
-
-                    unwrappedResult = typeof(Task).GetMethod("FromResult")
-                        .MakeGenericMethod(input.MethodBase.GetGenericReturnTypeArguments())
-                        .Invoke(null, new object[] { unwrappedResultMissingTask });
                 }
                 else
                 {
-                    unwrappedResult = CacheExtensions.Unwrap((dynamic)cachedResult);
+                    if (methodIsTask)
+                    {
+                        var unwrappedResultMissingTask = CacheExtensions.Unwrap((dynamic)cachedResult);
+
+                        unwrappedResult = typeof(Task).GetMethod("FromResult")
+                            .MakeGenericMethod(input.MethodBase.GetGenericReturnTypeArguments())
+                            .Invoke(null, new object[] { unwrappedResultMissingTask });
+                    }
+                    else
+                    {
+                        unwrappedResult = CacheExtensions.Unwrap((dynamic)cachedResult);
+                    }
                 }
+            }
+            finally
+            {
+                _locks.TryRemove(cacheKey, out removedObject);
             }
 
             if (scheduleDurableRefresh)
