@@ -127,7 +127,7 @@ namespace xCache.Tests.Core
         {
             var result = _cached.GetNullAsStringFiveSecondCache();
 
-            Assert.Equal(result, null);
+            Assert.Null(result);
         }
 
         [Fact]
@@ -136,7 +136,7 @@ namespace xCache.Tests.Core
         {
             var result = await _cached.GetNullAsStringFiveSecondCacheAsync();
 
-            Assert.Equal(result, null);
+            Assert.Null(result);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace xCache.Tests.Core
             {
                 var item = _cached.GetCurrentDateAsStringWithParameterFifteenSecondCacheAbsoluteNinetySeconds(i);
 
-                Assert.True(item.EndsWith(":" + i.ToString()));
+                Assert.EndsWith(":" + i.ToString(), item);
             }
 
             Thread.Sleep(1000 * 120);
