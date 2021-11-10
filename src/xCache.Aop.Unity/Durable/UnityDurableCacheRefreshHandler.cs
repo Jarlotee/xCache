@@ -1,7 +1,7 @@
-﻿using Microsoft.Practices.Unity;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Unity;
 using xCache.Durable;
 using xCache.Extensions;
 

@@ -1,4 +1,4 @@
-﻿using Microsoft.Practices.Unity.InterceptionExtension;
+﻿using Unity.Interception.PolicyInjection.Pipeline;
 
 namespace xCache.Aop.Unity
 {

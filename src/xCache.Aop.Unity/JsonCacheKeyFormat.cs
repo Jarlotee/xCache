@@ -1,5 +1,5 @@
-﻿using Microsoft.Practices.Unity.InterceptionExtension;
-using System.Reflection;
+﻿using System.Reflection;
+using Unity.Interception.PolicyInjection.Pipeline;
 
 namespace xCache.Aop.Unity
 {

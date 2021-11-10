@@ -1,7 +1,7 @@
-﻿using Microsoft.Practices.Unity.InterceptionExtension;
-using NSubstitute;
+﻿using NSubstitute;
 using System;
 using System.Reflection;
+using Unity.Interception.PolicyInjection.Pipeline;
 using xCache.Aop.Unity;
 using xCache.Tests.CacheKeyGenerator;
 using Xunit;

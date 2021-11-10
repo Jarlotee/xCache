@@ -1,11 +1,12 @@
-﻿using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.InterceptionExtension;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using xCache.Durable;
 using xCache.Extensions;
 using System.Linq;
 using System.Collections.Concurrent;
+using Unity.Interception.PolicyInjection.Pipeline;
+using Unity;
+using Unity.Interception.Interceptors.TypeInterceptors.VirtualMethodInterception;
 
 namespace xCache.Aop.Unity
 {

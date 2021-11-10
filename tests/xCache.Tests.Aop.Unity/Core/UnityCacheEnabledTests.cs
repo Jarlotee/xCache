@@ -1,10 +1,15 @@
-﻿using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.InterceptionExtension;
-using System;
+﻿using System;
 using xCache.Aop.Unity;
 using xCache.Aop.Unity.Durable;
 using xCache.Durable;
 using xCache.Tests.Core;
+using Unity;
+using Unity.Interception;
+using Unity.Lifetime;
+using Unity.Injection;
+using Unity.Interception.ContainerIntegration;
+using Unity.Interception.Interceptors.InstanceInterceptors.InterfaceInterception;
+using Unity.Interception.PolicyInjection;
 
 namespace xCache.Tests.Aop.Unity.Core
 {
