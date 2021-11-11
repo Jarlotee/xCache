@@ -6,7 +6,6 @@ using xCache.Tests.Core;
 using Unity;
 using Unity.Interception;
 using Unity.Lifetime;
-using Unity.Injection;
 using Unity.Interception.ContainerIntegration;
 using Unity.Interception.Interceptors.InstanceInterceptors.InterfaceInterception;
 using Unity.Interception.PolicyInjection;
@@ -15,7 +14,7 @@ namespace xCache.Tests.Aop.Unity.Core
 {
     public class UnityCacheEnabledTests : CacheEnabledTests
     {
-        IUnityContainer _container;
+        readonly IUnityContainer _container;
 
         public UnityCacheEnabledTests()
         {    

@@ -10,7 +10,7 @@ namespace xCache.Tests.Core
     public abstract class CacheEnabledTests
     {
         protected ICacheEnableObject _cached = null;
-
+        
         protected virtual void PurgeDurableCacheQueue()
         {
 
@@ -339,7 +339,7 @@ namespace xCache.Tests.Core
             var now = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
 
             PurgeDurableCacheQueue();
-            Thread.Sleep(new TimeSpan(0, 0, 0, 11));
+            Thread.Sleep(new TimeSpan(0, 0, 0, 1));
 
             var cached = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
 

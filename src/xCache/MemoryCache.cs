@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace xCache
+﻿namespace xCache
 {
     /// <summary>
     /// Default Cache Strategy
@@ -18,14 +16,9 @@ namespace xCache
         {
             var value = _cache.Get(key);
 
-            if (value != null)
-            {
-                return (CacheItem<T>)value;
-            }
-            else
-            {
-                return null;
-            }
+            return value != null
+                ? (CacheItem<T>)value
+                : null;
         }
 
         public bool Remove(string key)

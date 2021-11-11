@@ -10,13 +10,6 @@ namespace xCache.Tests.Aop.Unity.Core
 {
     public class UnityCacheEnabledObject : ICacheEnableObject
     {
-        private readonly ICache _cache;
-
-        public UnityCacheEnabledObject(ICache cache)
-        {
-            _cache = cache;
-        }
-
         private int NumberOfCalls = 0;
 
         public int GetNumberOfTimesCalled()
