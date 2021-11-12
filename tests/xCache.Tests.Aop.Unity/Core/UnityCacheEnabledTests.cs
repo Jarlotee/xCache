@@ -14,8 +14,6 @@ namespace xCache.Tests.Aop.Unity.Core
 {
     public class UnityCacheEnabledTests : CacheEnabledTests
     {
-        readonly IUnityContainer _container;
-
         public UnityCacheEnabledTests()
         {    
             _container = new UnityContainer();
@@ -38,6 +36,10 @@ namespace xCache.Tests.Aop.Unity.Core
                 new InterceptionBehavior<PolicyInjectionBehavior>(),
                 new Interceptor<InterfaceInterceptor>());
 
+            // The default behavior of MemoryCache is static so clear it before each test.
+            var memoryCache = _container.Resolve<ICache>();
+            memoryCache.RemoveAll();
+
             _cached = _container.Resolve<ICacheEnableObject>();
         }
 
@@ -51,7 +53,7 @@ namespace xCache.Tests.Aop.Unity.Core
         {
             //TODO figure out how to dispose this through unity
             var dictionary = (DictionaryCache)_container.Resolve<ICache>("DictionaryCache");
-            dictionary.Purge();
+            dictionary.RemoveAll();
         }
     }
 }

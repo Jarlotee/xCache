@@ -1,4 +1,6 @@
-﻿namespace xCache
+﻿using System.Collections.Generic;
+
+namespace xCache
 {
     /// <summary>
     /// Default Cache Strategy
@@ -25,6 +27,17 @@
         {
             var item = _cache.Remove(key);
             return item != null;
+        }
+
+        public void RemoveAll()
+        {
+            var items = new List<string>(256);
+
+            foreach (var item in _cache)
+                items.Add(item.Key);
+
+            foreach (var item in items)
+                _cache.Remove(item);
         }
     }
 }

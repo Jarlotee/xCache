@@ -4,13 +4,15 @@ using System.Threading.Tasks;
 using xCache.Tests.CacheKeyGenerator;
 using Xunit;
 using System.Linq;
+using Unity;
 
 namespace xCache.Tests.Core
 {
     public abstract class CacheEnabledTests
     {
         protected ICacheEnableObject _cached = null;
-        
+        protected IUnityContainer _container = null;
+
         protected virtual void PurgeDurableCacheQueue()
         {
 
@@ -339,7 +341,7 @@ namespace xCache.Tests.Core
             var now = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
 
             PurgeDurableCacheQueue();
-            Thread.Sleep(new TimeSpan(0, 0, 0, 1));
+            Thread.Sleep(new TimeSpan(0, 0, 0, 10));
 
             var cached = _cached.GetCurrentDateAsStringTenSecondCacheAbsoluteThirtySeconds();
 

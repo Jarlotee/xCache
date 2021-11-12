@@ -32,7 +32,7 @@ namespace xCache
             return _cache.TryRemove(key, out item);
         }
 
-        public void Purge()
+        public void RemoveAll()
         {
             _cache.Clear();
         }
