@@ -19,7 +19,6 @@ jobs:
       command: test
       arguments: -v minimal
       projects: tests/xCache.Tests
-  steps:
   - task: DotNetCoreCLI@2
     inputs:
       command: test
