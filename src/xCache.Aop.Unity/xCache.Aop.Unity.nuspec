@@ -8,11 +8,14 @@
     <owners>$author$</owners>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/Jarlotee/xCache/</projectUrl>
-    <icon>https://raw.githubusercontent.com/Jarlotee/xCache/master/docs/img/nuget-icon.png</icon>
+    <icon>images\nuget-icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Support for Unity 5</releaseNotes>
     <copyright>Copyright 2021</copyright>
     <tags>Cache Caching Aop Unity</tags>
   </metadata>
+  <files>
+    <file src="..\..\docs\img\nuget-icon.png" target="images\" />	
+  </files>
 </package>
