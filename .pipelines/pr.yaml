@@ -6,21 +6,17 @@ pool:
   vmImage: windows-latest
 
 jobs:
-- job: dotnet_build
+- job: pr_build_test
   steps:
-  - task: DotNetCoreCLI@2
+  - task: VSBuild@1
     inputs:
-      command: build
-      arguments: -v minimal
-- job: dotnet_test
-  steps:
-  - task: DotNetCoreCLI@2
+      solution: src/xCache.sln
+  - task: VSTest@2
     inputs:
-      command: test
-      arguments: -v minimal
-      projects: tests/xCache.Tests
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: test
-      arguments: -v minimal
-      projects: tests/xCache.Tests.Aop.Unity
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: |
+        **\*test*.dll
+        !**\*TestAdapter.dll
+        !**\obj\**
+      searchFolder: '$(System.DefaultWorkingDirectory)'
+      runOnlyImpactedTests: false
