@@ -6,12 +6,12 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <license>http://opensource.org/licenses/MIT</licenseUrl>
+    <license>http://opensource.org/licenses/MIT</license>
     <projectUrl>https://github.com/Jarlotee/xCache/</projectUrl>
-    <icon>https://raw.githubusercontent.com/Jarlotee/xCache/master/docs/img/nuget-icon.png</iconUrl>
+    <icon>https://raw.githubusercontent.com/Jarlotee/xCache/master/docs/img/nuget-icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Initial Release</releaseNotes>
+    <releaseNotes>Support for .Net 4.8</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>Cache Caching</tags>
   </metadata>
