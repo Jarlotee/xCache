@@ -8,6 +8,10 @@ pool:
 jobs:
 - job: pr_build_test
   steps:
+  - task: NuGetCommand@2
+    inputs:
+      command: restore
+      restoreSolution: src/xCache.sln
   - task: VSBuild@1
     inputs:
       solution: src/xCache.sln
