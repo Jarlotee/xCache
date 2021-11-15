@@ -6,7 +6,7 @@ pool:
   vmImage: windows-latest
 
 jobs:
-- job: pr_build_test
+- job: check_pr
   steps:
   - task: NuGetCommand@2
     inputs:
