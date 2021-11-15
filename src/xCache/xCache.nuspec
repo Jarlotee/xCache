@@ -6,7 +6,7 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-    <license>http://opensource.org/licenses/MIT</license>
+    <license type="expression">MIT</license>
     <projectUrl>https://github.com/Jarlotee/xCache/</projectUrl>
     <icon>https://raw.githubusercontent.com/Jarlotee/xCache/master/docs/img/nuget-icon.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
