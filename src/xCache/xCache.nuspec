@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Support for .Net 4.8</releaseNotes>
-    <copyright>Copyright 2015</copyright>
+    <copyright>Copyright 2021</copyright>
     <tags>Cache Caching</tags>
   </metadata>
 </package>
