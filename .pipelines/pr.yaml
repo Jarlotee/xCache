@@ -1,0 +1,27 @@
+trigger: none
+pr:
+  autoCancel: false
+
+pool:
+  vmImage: windows-latest
+
+jobs:
+- job: dotnet_build
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: build
+      arguments: -v minimal
+- job: dotnet_test
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: test
+      arguments: -v minimal
+      projects: tests/xCache.Tests
+  steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: test
+      arguments: -v minimal
+      projects: tests/xCache.Tests.Aop.Unity
