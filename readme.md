@@ -1,3 +1,5 @@
+Archived in favor of dotnet core native implementations.
+
 # xCache
 
 xCache is a decoupled caching abstraction for .NET. 
